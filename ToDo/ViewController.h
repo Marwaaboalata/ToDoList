@@ -6,9 +6,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Task.h"
+#import "MyProtocol.h"
+#import "MyProtocolDelete.h"
+@interface ViewController : UIViewController <UITableViewDataSource,UITableViewDelegate,MyProtocol,MyProtocolDelete,UISearchBarDelegate>
 
-@interface ViewController : UIViewController
-
+@property NSMutableArray *tasksList;
 
 @end
 

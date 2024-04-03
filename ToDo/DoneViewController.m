@@ -1,55 +1,49 @@
 //
-//  ViewController.m
+//  DoneViewController.m
 //  ToDo
 //
 //  Created by marwa on 02/04/2024.
 //
 
-#import "ViewController.h"
+#import "DoneViewController.h"
 #import "Task.h"
-#import "TaskDetailViewController.h"
-#import "AddTaskViewController.h"
-@interface ViewController ()
-@property (weak, nonatomic) IBOutlet UITableView *firstTV;
-@property (weak, nonatomic) IBOutlet UISearchBar *mySearchBar;
+#import "DoneDetailsViewController.h"
+
+@interface DoneViewController ()
+
+
+@property (weak, nonatomic) IBOutlet UITableView *doneTableView;
 
 @end
 
-@implementation ViewController
+@implementation DoneViewController
+
 {
     NSMutableArray *tasksArray;
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.firstTV.delegate=self;
-    self.firstTV.dataSource=self;
+    self.doneTableView.delegate=self;
+    self.doneTableView.dataSource=self;
     
-    _tasksList = [NSMutableArray new];
+ 
     
-    Task *taskobj1 =[Task new];
-    [taskobj1 setTitle:@"study"];
-    [taskobj1 setDescribtion:@"studyyyy"];
-    [taskobj1 setDate:@"date"];
-    [_tasksList addObject:taskobj1];
-    
-    
-    // Retrieve the existing task array from UserDefaults or create a new one
+    // Retrieve 
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        NSArray *existingTasks = [defaults objectForKey:@"TasksArray"];
+        NSArray *existingTasks = [defaults objectForKey:@"DoneTasksArray"];
          tasksArray = existingTasks ? [existingTasks mutableCopy] : [NSMutableArray array];
     
     
     
     
-    [self.firstTV reloadData];
+    [self.doneTableView reloadData];
     
 }
 
 
 - (void)viewWillAppear:(BOOL)animated{
-    
-    [self.firstTV reloadData];
+    [self.doneTableView reloadData];
     
 }
 
@@ -63,11 +57,11 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"myCellFirst" forIndexPath:indexPath];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"myCellDone" forIndexPath:indexPath];
     
-    UILabel *cllLabel=[cell viewWithTag:3];
+    UILabel *cllLabel=[cell viewWithTag:6];
     
-    UIImageView *img = [cell viewWithTag:2];
+    UIImageView *img = [cell viewWithTag:7];
 
   //  cllLabel.text= [_tasksList[indexPath.row] title];
     
@@ -95,48 +89,20 @@
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     
-    TaskDetailViewController *detail =[self.storyboard instantiateViewControllerWithIdentifier:@"TaskDetailViewController"];
+    DoneDetailsViewController *detail =[self.storyboard instantiateViewControllerWithIdentifier:@"DoneDetailsViewController"];
     
     NSDictionary *taskDic = tasksArray[indexPath.row];
     Task *currentTask = [self taskFromDictionary:taskDic];
-   // [detail setTaskForDetails:[Task new]];
-    [detail setTaskForDetails:currentTask];
+    [detail setTaskForDetailsDone:currentTask];
     
-    
-    detail.myProtocolDelete = self;
    
     [self.navigationController pushViewController:detail animated:YES];
     
 }
-- (IBAction)addBtn:(id)sender {
-    AddTaskViewController *addTaskVC = [self.storyboard instantiateViewControllerWithIdentifier:@"AddTaskViewController"];
-        addTaskVC.myProtocol = self;
 
-        [self.navigationController pushViewController:addTaskVC animated:YES];
-    
-}
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath{
-    
-    [tasksArray removeObject:tasksArray[indexPath.row]];
-   
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
-    [defaults setObject:tasksArray forKey:@"TasksArray"];
-    [defaults synchronize];
-    
-    [self.firstTV reloadData];
-}
 
-- (void)onClick:(NSDictionary *)task{
-    [tasksArray addObject:task];
-    [self.firstTV reloadData];
-    
-}
-- (void)onClickDelete:(NSDictionary *)task{
-    [tasksArray removeObject:task];
-    [self.firstTV reloadData];
-    
-}
+
 
 - (Task *)taskFromDictionary:(NSDictionary *)dict {
     Task *task = [[Task alloc] init];
@@ -151,23 +117,8 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     return 100.0; }
-
-- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
-    if (searchText.length == 0) {
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-        NSArray *existingTasks = [[defaults objectForKey:@"TasksArray"] mutableCopy];
-        tasksArray = existingTasks ? [existingTasks mutableCopy] : [NSMutableArray array];
-    } else {
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"title CONTAINS[cd] %@", searchText];
-        NSArray *filteredTasks = [tasksArray filteredArrayUsingPredicate:predicate];
-        
-        tasksArray = [NSMutableArray arrayWithArray:filteredTasks];
-    }
-    
-    [self.firstTV reloadData];
-}
-
 - (IBAction)filtration:(id)sender {
+
     UISegmentedControl *segmentedControl = (UISegmentedControl *)sender;
     
     switch (segmentedControl.selectedSegmentIndex) {
@@ -190,7 +141,7 @@
 
 - (void)filterTasksByPriority:(NSString *)priority {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSArray *existingTasks = [[defaults objectForKey:@"TasksArray"] mutableCopy];
+    NSArray *existingTasks = [[defaults objectForKey:@"DoneTasksArray"] mutableCopy];
     tasksArray = existingTasks ? [existingTasks mutableCopy] : [NSMutableArray array];
   
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"taskPriority == %@", priority];
@@ -199,7 +150,7 @@
     tasksArray = [NSMutableArray arrayWithArray:filteredTasks];
     
   
-    [self.firstTV reloadData];
+    [self.doneTableView reloadData];
 }
 
 
